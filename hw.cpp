@@ -24,9 +24,10 @@ string read() {
   return command;
 }
 
-int parse(string command){
+int* parse(string command, int operands[]){
+  int operand = 0;
   if (command[0] != '(') {
-    error(0,command);
+    error(0, "expected SEPARATOR");
     return 0;
   }
   token last_seen = SEPARATOR;
@@ -35,6 +36,8 @@ int parse(string command){
     if (last_seen == SEPARATOR) {
       if (isdigit(command[i])) {
         last_seen = NUMBER;
+        operands[operand] += static_cast<int>(command[i] - '0');
+        operand++;
       } else if (command[i] == 'I') {
           if ( i+1 < command.length()
                   && command[i+1] == 'F') {
@@ -67,7 +70,11 @@ int parse(string command){
           fprintf(stderr, "  warn: =%c=\n", command[i]);
           error(i, "expected DIGIT, SEPARATOR, or OPERATOR");
           return 0;
+      } else if (isdigit(command[i])) {
+          operands[operand] += static_cast<int>(command[i] - '0');
+          operand++;
       }
+
       if (isdigit(command[i])) {
         last_seen = NUMBER;
       }
@@ -77,13 +84,22 @@ int parse(string command){
     }
     i++;
   }
-  printf("  read command %s\n", command.c_str());
+  return operands;
+}
+
+int evaluate(int operands[]) {
+    int result = operands[0] + operands[1];
+    printf("  got result: %d\n", result);
 }
 
 int main() {
   while (1) {
     string input = read();
-    parse(input);
+    int operands[2] = {0, 0};
+    int *command = parse(input, operands);
+    if (command != 0) {
+        evaluate(operands);
+    }
   }
 }
 
