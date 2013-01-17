@@ -141,7 +141,7 @@ int main() {
     if (type == EXPRESSION)
       printf("%d\n", result);
     else if (type == IF_STATEMENT) {
-      int jump = (result < 0 ? 2 : (result == 0 ? 3 : 4));
+      int jump = (result < 0 ? 1 : (result == 0 ? 2 : 3));
       printf("%d\n", evaluate(&(cmd.operands[jump])));
     }
   }
