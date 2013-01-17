@@ -1,5 +1,9 @@
 #include <iostream>
 #include <stdio.h>
+#include <sstream>
+#include <string>
+#include <vector>
+
 
 using namespace std;
 
@@ -29,6 +33,14 @@ int* parse(string command, int operands[]){
   if (command[0] != '(') {
     error(0, "expected SEPARATOR");
     return 0;
+  } else if (command[command.length()-1] != ')') {
+    error(command.length(), "expected trailing ')' to end expression");
+    return 0;
+  }
+  istringstream split(command); 
+  string each = "";
+  while (getline(split, each, ' ')) {
+          puts(each.c_str());
   }
   token last_seen = SEPARATOR;
   int i = 1;
