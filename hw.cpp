@@ -52,6 +52,11 @@ class expression {
     }
 };
 
+struct command {
+  query type;
+  expression operands[3];
+};
+
 string read() {
   cout << prompt;
   string command = "";
@@ -59,17 +64,18 @@ string read() {
   return command;
 }
 
-int parse(string command, expression *exp){
+int parse(string input, command *cmd){
+  expression *exp = &(cmd->operands[0]);
   int operand = 0;
   int operands[2];
   query query_type;
-  if (command[0] == '(' && command[command.length()-1] == ')') {
-    command = command.substr(1, command.length()-2);
+  if (input[0] == '(' && input[input.length()-1] == ')') {
+    input = input.substr(1, input.length()-2);
     query_type = EXPRESSION;
-  } else if (command.substr(0, 2) == "IF") {
+  } else if (input.substr(0, 2) == "IF") {
     query_type = IF_STATEMENT;
   }
-  istringstream split(command); 
+  istringstream split(input); 
   string word = "";
   while (getline(split, word, ' ')) {
     switch (query_type) {
@@ -116,10 +122,10 @@ void evaluate(expression *exp) {
 
 int main() {
   while (1) {
+    command cmd;
     string input = read();
-    expression exp;
-    if (!parse(input, &exp)) {
-        evaluate(&exp);
+    if (!parse(input, &cmd)) {
+        evaluate(&(cmd.operands[0]));
     }
   }
 }
