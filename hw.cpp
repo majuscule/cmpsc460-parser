@@ -26,15 +26,16 @@ string read() {
   return command;
 }
 
-int* parse(string command, int operands[]){
-  expression exp;
+int parse(string command, expression *exp){
+  string op = "";
   int operand = 0;
+  int operands[2];
   if (command[0] != '(') {
     error(0, "expected SEPARATOR");
-    return 0;
+    return 1;
   } else if (command[command.length()-1] != ')') {
     error(command.length(), "expected trailing ')' to end expression");
-    return 0;
+    return 1;
   }
   command = command.substr(1, command.length()-2);
   istringstream split(command); 
@@ -43,25 +44,27 @@ int* parse(string command, int operands[]){
       if (stringstream(word) >> operands[operand]) {
         operand++;
       } else {
-        exp.op = word;
+        op = word;
       }
   }
 
-  return operands;
+  exp->a = operands[0];
+  exp->b = operands[1];
+  exp->op = op;
+  return 0;
 }
 
-int evaluate(int operands[]) {
-    int result = operands[0] + operands[1];
-    printf("  got result: %d\n", result);
+void evaluate(expression *exp) {
+    int result = exp->a + exp->b;
+    printf("%d\n", result);
 }
 
 int main() {
   while (1) {
     string input = read();
-    int operands[2] = {0, 0};
-    int *command = parse(input, operands);
-    if (command != 0) {
-        evaluate(operands);
+    expression exp;
+    if (!parse(input, &exp)) {
+        evaluate(&exp);
     }
   }
 }
