@@ -59,16 +59,19 @@ int parse(string command, expression *exp){
   int operand = 0;
   int operands[2];
   if (command[0] != '(') {
-    fprintf(stderr, "expected starting SEPARATOR");
+    fprintf(stderr, "expected starting SEPARATOR\n");
     return 1;
   } else if (command[command.length()-1] != ')') {
-    fprintf(stderr, "expected trailing ')' to end expression");
+    fprintf(stderr, "expected trailing ')' to end expression\n");
     return 1;
   }
   command = command.substr(1, command.length()-2);
   istringstream split(command); 
   string word = "";
   while (getline(split, word, ' ')) {
+      if (word == "IF") {
+        puts("IF");
+      }
       if (stringstream(word) >> operands[operand]) {
         operand++;
       } else {
@@ -79,7 +82,7 @@ int parse(string command, expression *exp){
   exp->a = operands[0];
   exp->b = operands[1];
   if (exp->set_op(op)) {
-    fprintf(stderr, "expected OPERATOR (one of +-*/%)");
+    fprintf(stderr, "expected OPERATOR (one of +-*/%\n)");
   };
   return 0;
 }
