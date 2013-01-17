@@ -9,15 +9,43 @@ using namespace std;
 
 const string prompt = "> ";
 
-struct expression {
-  int a;
-  int b;
-  string op;
+enum operation {
+  ADDITION,
+  SUBTRACTION,
+  MULTIPLICATION,
+  DIVISION,
+  MODULO
 };
 
-void error(int charNum, string msg) {
-  fprintf(stderr, "  error at char #%d: %s\n", charNum, msg.c_str());
-}
+class expression {
+  public: 
+    int a;
+    int b;
+    operation op;
+    int set_op(string op) {
+      if (op.length() > 1) { return 0; }
+      switch (op.c_str()[0]) {
+        case '+':
+          this->op = ADDITION;
+          break;
+        case '-':
+          this->op = SUBTRACTION;
+          break;
+        case '*':
+          this->op = MULTIPLICATION;
+          break;
+        case '/':
+          this->op = DIVISION;
+          break;
+        case '%':
+          this->op = MODULO;
+          break;
+        default:
+          return 1;
+      }
+      return 0;
+    }
+};
 
 string read() {
   cout << prompt;
@@ -31,10 +59,10 @@ int parse(string command, expression *exp){
   int operand = 0;
   int operands[2];
   if (command[0] != '(') {
-    error(0, "expected SEPARATOR");
+    fprintf(stderr, "expected starting SEPARATOR");
     return 1;
   } else if (command[command.length()-1] != ')') {
-    error(command.length(), "expected trailing ')' to end expression");
+    fprintf(stderr, "expected trailing ')' to end expression");
     return 1;
   }
   command = command.substr(1, command.length()-2);
@@ -50,12 +78,31 @@ int parse(string command, expression *exp){
 
   exp->a = operands[0];
   exp->b = operands[1];
-  exp->op = op;
+  if (exp->set_op(op)) {
+    fprintf(stderr, "expected OPERATOR (one of +-*/%)");
+  };
   return 0;
 }
 
 void evaluate(expression *exp) {
-    int result = exp->a + exp->b;
+    int result;
+    switch (exp->op) {
+      case ADDITION:
+        result = exp->a + exp->b;
+        break;
+      case SUBTRACTION:
+        result = exp->a - exp->b;
+        break;
+      case MULTIPLICATION:
+        result = exp->a * exp->b;
+        break;
+      case DIVISION:
+        result = exp->a / exp->b;
+        break;
+      case MODULO:
+        result = exp->a % exp->b;
+        break;
+    }
     printf("%d\n", result);
 }
 
