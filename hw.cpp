@@ -24,8 +24,7 @@ enum query {
 
 class expression {
   public: 
-    int a;
-    int b;
+    int operands[2];
     operation op;
     int set_op(string op) {
       if (op.length() > 1) { return 0; }
@@ -64,23 +63,25 @@ string read() {
   return command;
 }
 
-int parse(string input, command *cmd){
+query parse(string input, command *cmd){
   expression *exp = &(cmd->operands[0]);
   int operand = 0;
-  int operands[2];
   query query_type;
   if (input[0] == '(' && input[input.length()-1] == ')') {
     input = input.substr(1, input.length()-2);
     query_type = EXPRESSION;
   } else if (input.substr(0, 2) == "IF") {
     query_type = IF_STATEMENT;
+  } else {
+    fprintf(stderr, "expected EXPRESSION or IF_STATEMENT");
   }
   istringstream split(input); 
   string word = "";
+  int exp_operand = 0;
   while (getline(split, word, ' ')) {
     switch (query_type) {
         case EXPRESSION:
-          if (stringstream(word) >> operands[operand]) {
+          if (stringstream(word) >> exp->operands[operand]) {
             operand++;
           } else {
             if (exp->set_op(word)) {
@@ -88,44 +89,55 @@ int parse(string input, command *cmd){
             };
           }
           break;
-        case IF_STATEMENT:
-          break;
+//        case IF_STATEMENT:
+//          exp
+//          exp_operand++;
+//          if (exp_operand == 2) {
+//            operand++;
+//            exp_operand = 0;
+//          }
+//          break;
     }
   }
 
-  exp->a = operands[0];
-  exp->b = operands[1];
-  return 0;
+  return query_type;
 }
 
-void evaluate(expression *exp) {
-    int result;
+int evaluate(expression *exp) {
+    int result = 0;
     switch (exp->op) {
       case ADDITION:
-        result = exp->a + exp->b;
+        result = exp->operands[0] + exp->operands[1];
         break;
       case SUBTRACTION:
-        result = exp->a - exp->b;
+        result = exp->operands[0] - exp->operands[1];
         break;
       case MULTIPLICATION:
-        result = exp->a * exp->b;
+        result = exp->operands[0] * exp->operands[1];
         break;
       case DIVISION:
-        result = exp->a / exp->b;
+        result = exp->operands[0] / exp->operands[1];
         break;
       case MODULO:
-        result = exp->a % exp->b;
+        result = exp->operands[0] % exp->operands[1];
         break;
     }
-    printf("%d\n", result);
+    return result;
 }
+
 
 int main() {
   while (1) {
     command cmd;
     string input = read();
-    if (!parse(input, &cmd)) {
-        evaluate(&(cmd.operands[0]));
+    if (query type = parse(input, &cmd)) {
+      int result = evaluate(&(cmd.operands[0]));
+      if (type = EXPRESSION)
+        printf("%d\n", result);
+      else if (type = IF_STATEMENT) {
+        int jump = (result < 0 ? 1 : (result == 0 ? 2 : 3));
+        printf("%d\n", evaluate(&(cmd.operands[jump])));
+      }
     }
   }
 }
