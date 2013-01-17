@@ -13,20 +13,20 @@ enum token {
   CONDITIONAL
 };
 
-void error(string msg) {
-  fprintf(stderr, "  error: %s\n", msg.c_str());
+void error(int charNum, string msg) {
+  fprintf(stderr, "  error at char #%d: %s\n", charNum, msg.c_str());
 }
 
 string read() {
   cout << prompt;
   string command = "";
-  cin >> command;
+  getline(cin, command);
   return command;
 }
 
 int parse(string command){
   if (command[0] != '(') {
-    error("expected a '(' character to begin the expression");
+    error(0,command);
     return 0;
   }
   token last_seen = SEPARATOR;
@@ -41,17 +41,39 @@ int parse(string command){
             last_seen = CONDITIONAL;
             i++;
           } else {
-            error("expected 'IF' conditional");
+            error(i, "expected 'IF' conditional");
             return 0;
           }
-      }
-    } else if (last_seen == NUMBER) {
-
-    } else if (last_seen == OPERATOR) {
-      if (command[i] != ')') {
-        error("expected a ')' character to end the expression");
+      } else {
+        error(i, "expected a DIGIT or an IF statement");
         return 0;
       }
+    } else if (last_seen == NUMBER) {
+        if (command[i] == ' ') {
+            last_seen = SPACE;
+        } else if (!isdigit(command[i])) {
+            error(i, "expected a SPACE or a DIGIT");
+            return 0;
+        }
+    } else if (last_seen == OPERATOR) {
+      if (command[i] != ')') {
+        error(i, "expected a ')' character to end the expression");
+        return 0;
+      }
+    } else if (last_seen == SPACE) {
+      if (! (isdigit(command[i])
+                || command[i] == ')'
+                || command[i] == '+')) {
+          fprintf(stderr, "  warn: =%c=\n", command[i]);
+          error(i, "expected DIGIT, SEPARATOR, or OPERATOR");
+          return 0;
+      }
+      if (isdigit(command[i])) {
+        last_seen = NUMBER;
+      }
+    } else {
+      error(i, "expected SEPARATOR, DIGIT, or IF statement");
+      return 0;
     }
     i++;
   }
@@ -60,8 +82,8 @@ int parse(string command){
 
 int main() {
   while (1) {
-    string command = read();
-    parse(command);
+    string input = read();
+    parse(input);
   }
 }
 
