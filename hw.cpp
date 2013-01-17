@@ -17,6 +17,11 @@ enum operation {
   MODULO
 };
 
+enum query {
+  IF_STATEMENT,
+  EXPRESSION
+};
+
 class expression {
   public: 
     int a;
@@ -55,24 +60,35 @@ string read() {
 }
 
 int parse(string command, expression *exp){
-  string op = "";
   int operand = 0;
   int operands[2];
+  query query_type;
+  if (command[0] == '(' && command[command.length()-1] == ')') {
+    command = command.substr(1, command.length()-2);
+    query_type = EXPRESSION;
+  } else if (command.substr(0, 2) == "IF") {
+    query_type = IF_STATEMENT;
+  }
   istringstream split(command); 
   string word = "";
   while (getline(split, word, ' ')) {
-      if (stringstream(word) >> operands[operand]) {
-        operand++;
-      } else {
-        op = word;
-      }
+    switch (query_type) {
+        case EXPRESSION:
+          if (stringstream(word) >> operands[operand]) {
+            operand++;
+          } else {
+            if (exp->set_op(word)) {
+              fprintf(stderr, "expected OPERATOR (one of +-*/%\n)");
+            };
+          }
+          break;
+        case IF_STATEMENT:
+          break;
+    }
   }
 
   exp->a = operands[0];
   exp->b = operands[1];
-  if (exp->set_op(op)) {
-    fprintf(stderr, "expected OPERATOR (one of +-*/%\n)");
-  };
   return 0;
 }
 
