@@ -53,7 +53,7 @@ class expression {
 
 struct command {
   query type;
-  expression operands[3];
+  expression operands[4];
 };
 
 string read() {
@@ -64,7 +64,6 @@ string read() {
 }
 
 query parse(string input, command *cmd){
-  expression *exp = &(cmd->operands[0]);
   int operand = 0;
   query query_type;
   if (input[0] == '(' && input[input.length()-1] == ')') {
@@ -81,25 +80,31 @@ query parse(string input, command *cmd){
   while (getline(split, word, ' ')) {
     switch (query_type) {
         case EXPRESSION:
-          if (stringstream(word) >> exp->operands[operand]) {
+          if (stringstream(word) >> cmd->operands[0].operands[operand]) {
             operand++;
           } else {
-            if (exp->set_op(word)) {
+            if (cmd->operands[0].set_op(word)) {
               fprintf(stderr, "expected OPERATOR (one of +-*/%\n)");
             };
           }
           break;
-//        case IF_STATEMENT:
-//          exp
-//          exp_operand++;
-//          if (exp_operand == 2) {
-//            operand++;
-//            exp_operand = 0;
-//          }
-//          break;
+        case IF_STATEMENT:
+          if (word == "IF") break;
+          if (exp_operand == 0) { word = word.substr(1, word.length()); }
+          if (exp_operand == 2) {
+              word = word.substr(0, word.length()-1);
+              cmd->operands[operand].set_op(word);
+          } else {
+            stringstream(word) >> cmd->operands[operand].operands[exp_operand];
+          }
+          exp_operand++;
+          if (exp_operand == 3) {
+            operand++;
+            exp_operand = 0;
+          }
+          break;
     }
   }
-
   return query_type;
 }
 
@@ -130,14 +135,13 @@ int main() {
   while (1) {
     command cmd;
     string input = read();
-    if (query type = parse(input, &cmd)) {
-      int result = evaluate(&(cmd.operands[0]));
-      if (type = EXPRESSION)
-        printf("%d\n", result);
-      else if (type = IF_STATEMENT) {
-        int jump = (result < 0 ? 1 : (result == 0 ? 2 : 3));
-        printf("%d\n", evaluate(&(cmd.operands[jump])));
-      }
+    query type = parse(input, &cmd);
+    int result = evaluate(&(cmd.operands[0]));
+    if (type == EXPRESSION)
+      printf("%d\n", result);
+    else if (type == IF_STATEMENT) {
+      int jump = (result < 0 ? 2 : (result == 0 ? 3 : 4));
+      printf("%d\n", evaluate(&(cmd.operands[jump])));
     }
   }
 }
