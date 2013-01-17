@@ -36,6 +36,7 @@ class expression {
           this->op = SUBTRACTION;
           break;
         case '*':
+        case 'x':
           this->op = MULTIPLICATION;
           break;
         case '/':
