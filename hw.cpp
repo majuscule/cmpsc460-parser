@@ -79,6 +79,7 @@ query parse(string input, command *cmd){
   string word = "";
   int exp_operand = 0;
   while (getline(split, word, ' ')) {
+    if (word == "") continue;
     switch (query_type) {
         case EXPRESSION:
           if (stringstream(word) >> cmd->operands[0].operands[operand]) {
