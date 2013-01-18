@@ -4,7 +4,6 @@
 #include <string>
 #include <vector>
 
-
 using namespace std;
 
 const string prompt = "> ";
@@ -64,7 +63,7 @@ string read() {
   return command;
 }
 
-query parse(string input, command *cmd){
+query parse(string input, command *cmd) {
   int operand = 0;
   query query_type;
   if (input[0] == '(' && input[input.length()-1] == ')') {
@@ -81,59 +80,59 @@ query parse(string input, command *cmd){
   while (getline(split, word, ' ')) {
     if (word == "") continue;
     switch (query_type) {
-        case EXPRESSION:
-          if (stringstream(word) >> cmd->operands[0].operands[operand]) {
-            operand++;
-          } else {
-            if (cmd->operands[0].set_op(word)) {
-              fprintf(stderr, "error parsing EXPRESSION\n");
-            };
-          }
-          break;
-        case IF_STATEMENT:
-          if (word == "IF") break;
-          if (exp_operand == 0) { word = word.substr(1, word.length()); }
-          if (exp_operand == 2) {
-              word = word.substr(0, word.length()-1);
-              cmd->operands[operand].set_op(word);
-          } else {
-            stringstream(word) >> cmd->operands[operand].operands[exp_operand];
-          }
-          exp_operand++;
-          if (exp_operand == 3) {
-            operand++;
-            exp_operand = 0;
-          }
-          break;
+      case EXPRESSION:
+        if (stringstream(word) >> cmd->operands[0].operands[operand]) {
+          operand++;
+        } else {
+          if (cmd->operands[0].set_op(word)) {
+            fprintf(stderr, "error parsing EXPRESSION\n");
+          };
+        }
+        break;
+      case IF_STATEMENT:
+        if (word == "IF") break;
+        if (exp_operand == 0) { word = word.substr(1, word.length()); }
+        if (exp_operand == 2) {
+            word = word.substr(0, word.length()-1);
+            cmd->operands[operand].set_op(word);
+        } else {
+          stringstream(word) >> cmd->operands[operand].operands[exp_operand];
+        }
+        exp_operand++;
+        if (exp_operand == 3) {
+          operand++;
+          exp_operand = 0;
+        }
+        break;
     }
   }
   return query_type;
 }
 
 int evaluate(expression *exp) {
-    int result = 0;
-    switch (exp->op) {
-      case ADDITION:
-        result = exp->operands[0] + exp->operands[1];
-        break;
-      case SUBTRACTION:
-        result = exp->operands[0] - exp->operands[1];
-        break;
-      case MULTIPLICATION:
-        result = exp->operands[0] * exp->operands[1];
-        break;
-      case DIVISION:
-        result = exp->operands[0] / exp->operands[1];
-        break;
-      case MODULO:
-        result = exp->operands[0] % exp->operands[1];
-        break;
-    }
-    return result;
+  int result = 0;
+  switch (exp->op) {
+    case ADDITION:
+      result = exp->operands[0] + exp->operands[1];
+      break;
+    case SUBTRACTION:
+      result = exp->operands[0] - exp->operands[1];
+      break;
+    case MULTIPLICATION:
+      result = exp->operands[0] * exp->operands[1];
+      break;
+    case DIVISION:
+      result = exp->operands[0] / exp->operands[1];
+      break;
+    case MODULO:
+      result = exp->operands[0] % exp->operands[1];
+      break;
+  }
+  return result;
 }
 
 
-int main() {
+int main(int argc, char *argv[]) {
   while (1) {
     command cmd;
     query type = parse(read(), &cmd);
