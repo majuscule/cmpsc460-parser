@@ -135,14 +135,13 @@ int evaluate(expression *exp) {
 int main() {
   while (1) {
     command cmd;
-    string input = read();
-    query type = parse(input, &cmd);
+    query type = parse(read(), &cmd);
     int result = evaluate(&(cmd.operands[0]));
     if (type == EXPRESSION)
       printf("%d\n", result);
     else if (type == IF_STATEMENT) {
       int jump = (result < 0 ? 1 : (result == 0 ? 2 : 3));
-      printf("%d\n", evaluate(&(cmd.operands[jump])));
+      printf("%d\n", evaluate(&cmd.operands[jump]));
     }
   }
 }
