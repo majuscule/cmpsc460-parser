@@ -86,7 +86,7 @@ query parse(string input, command *cmd){
             operand++;
           } else {
             if (cmd->operands[0].set_op(word)) {
-              fprintf(stderr, "expected OPERATOR (one of +-*/%)\n");
+              fprintf(stderr, "error parsing EXPRESSION\n");
             };
           }
           break;
