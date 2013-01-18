@@ -73,7 +73,7 @@ query parse(string input, command *cmd){
   } else if (input.substr(0, 2) == "IF") {
     query_type = IF_STATEMENT;
   } else {
-    fprintf(stderr, "expected EXPRESSION or IF_STATEMENT");
+    fprintf(stderr, "expected EXPRESSION or IF_STATEMENT\n");
   }
   istringstream split(input); 
   string word = "";
@@ -85,7 +85,7 @@ query parse(string input, command *cmd){
             operand++;
           } else {
             if (cmd->operands[0].set_op(word)) {
-              fprintf(stderr, "expected OPERATOR (one of +-*/%\n)");
+              fprintf(stderr, "expected OPERATOR (one of +-*/%)\n");
             };
           }
           break;
