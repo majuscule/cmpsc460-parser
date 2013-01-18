@@ -63,14 +63,13 @@ string read() {
   return command;
 }
 
-query parse(string input, command *cmd) {
+void parse(string input, command *cmd) {
   int operand = 0;
-  query query_type;
   if (input[0] == '(' && input[input.length()-1] == ')') {
     input = input.substr(1, input.length()-2);
-    query_type = EXPRESSION;
+    cmd->type = EXPRESSION;
   } else if (input.substr(0, 2) == "IF") {
-    query_type = IF_STATEMENT;
+    cmd->type = IF_STATEMENT;
   } else {
     fprintf(stderr, "expected EXPRESSION or IF_STATEMENT\n");
   }
@@ -79,7 +78,7 @@ query parse(string input, command *cmd) {
   int exp_operand = 0;
   while (getline(split, word, ' ')) {
     if (word == "") continue;
-    switch (query_type) {
+    switch (cmd->type) {
       case EXPRESSION:
         if (stringstream(word) >> cmd->operands[0].operands[operand]) {
           operand++;
@@ -106,7 +105,6 @@ query parse(string input, command *cmd) {
         break;
     }
   }
-  return query_type;
 }
 
 int evaluate(expression *exp) {
@@ -135,11 +133,11 @@ int evaluate(expression *exp) {
 int main(int argc, char *argv[]) {
   while (1) {
     command cmd;
-    query type = parse(read(), &cmd);
-    int result = evaluate(&(cmd.operands[0]));
-    if (type == EXPRESSION)
+    parse(read(), &cmd);
+    int result = evaluate(&cmd.operands[0]);
+    if (cmd.type == EXPRESSION)
       printf("%d\n", result);
-    else if (type == IF_STATEMENT) {
+    else if (cmd.type == IF_STATEMENT) {
       int jump = (result < 0 ? 1 : (result == 0 ? 2 : 3));
       printf("%d\n", evaluate(&cmd.operands[jump]));
     }
