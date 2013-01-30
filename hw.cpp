@@ -63,7 +63,7 @@ string read() {
   return command;
 }
 
-void parse(string input, command *cmd) {
+int parse(string input, command *cmd) {
   int operand = 0;
   if (input[0] == '(' && input[input.length()-1] == ')') {
     input = input.substr(1, input.length()-2);
@@ -71,7 +71,8 @@ void parse(string input, command *cmd) {
   } else if (input.substr(0, 2) == "IF") {
     cmd->type = IF_STATEMENT;
   } else {
-    fprintf(stderr, "expected EXPRESSION or IF_STATEMENT\n");
+    fprintf(stderr, "scan error: expected EXPRESSION or IF_STATEMENT\n");
+    return 1;
   }
   istringstream split(input); 
   string word = "";
@@ -80,12 +81,21 @@ void parse(string input, command *cmd) {
     if (word == "") continue;
     switch (cmd->type) {
       case EXPRESSION:
-        if (stringstream(word) >> cmd->operands[0].operands[operand]) {
-          operand++;
+        if (operand < 2) {
+          if (stringstream(word) >> cmd->operands[0].operands[operand]) {
+            operand++;
+          } else {
+              fprintf(stderr, "scan error: parsing EXPRESSION, found illegal OPERAND\n");
+              return 1;
+          }
         } else {
-          if (cmd->operands[0].set_op(word)) {
-            fprintf(stderr, "error parsing EXPRESSION\n");
-          };
+          if (isdigit(word[0])) {
+            fprintf(stderr, "parse error: too many OPERANDs\n");
+            return 1;
+          } else if (cmd->operands[0].set_op(word)) {
+            fprintf(stderr, "scan error: parsing EXPRESSION, found illegal OPERATION\n");
+            return 1;
+          }
         }
         break;
       case IF_STATEMENT:
@@ -105,6 +115,7 @@ void parse(string input, command *cmd) {
         break;
     }
   }
+  return 0;
 }
 
 int evaluate(expression *exp) {
@@ -134,8 +145,7 @@ int main(int argc, char *argv[]) {
   while (1) {
     command cmd;
     string input = read();
-    if (input == "") continue;
-    parse(input, &cmd);
+    if (input == "" || parse(input, &cmd)) continue;
     int result = evaluate(&cmd.operands[0]);
     if (cmd.type == EXPRESSION)
       printf("%d\n", result);
