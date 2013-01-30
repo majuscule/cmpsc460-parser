@@ -133,7 +133,9 @@ int evaluate(expression *exp) {
 int main(int argc, char *argv[]) {
   while (1) {
     command cmd;
-    parse(read(), &cmd);
+    string input = read();
+    if (input == "") continue;
+    parse(input, &cmd);
     int result = evaluate(&cmd.operands[0]);
     if (cmd.type == EXPRESSION)
       printf("%d\n", result);
